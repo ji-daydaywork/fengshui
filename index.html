@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>問道網 · 苦行積善</title>
+<meta name="description" content="問道網 - 梅花易數、大六壬、八字排盤、相片占卜。苦行積善。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🔮</text></svg>">
+<style>
+:root{--bg:#0a0a0f;--card:#14141f;--card2:#1a1a28;--text:#e0e0e0;--text2:#888;
+  --gold:#c9a24e;--green:#22c55e;--red:#ef4444;--blue:#4a90d9;--border:#2a2a3a;--radius:12px;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;-webkit-tap-highlight-color:transparent;}
+input,textarea,button,select{font-family:inherit;font-size:16px;-webkit-appearance:none;border-radius:8px;}
+input,textarea{width:100%;padding:12px 14px;background:var(--card);border:1px solid var(--border);color:var(--text);margin:6px 0;}
+input:focus,textarea:focus{outline:none;border-color:var(--gold);}
+button{cursor:pointer;border:none;font-weight:600;min-height:44px;}
+.btn-primary{width:100%;padding:14px;background:var(--gold);color:#000;font-size:16px;border-radius:var(--radius);margin-top:12px;}
+.btn-primary:disabled{background:#555;color:#888;}
+.btn-secondary{width:100%;padding:12px;background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);margin-top:8px;}
+.helper{display:block;font-size:12px;color:var(--text2);margin-bottom:10px;padding-left:2px;}
+
+#app{max-width:480px;margin:0 auto;min-height:100vh;min-height:100dvh;}
+.screen{display:none;padding:20px 16px 40px;}
+.screen.active{display:block;}
+
+#status-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-family:monospace;color:var(--text2);}
+#status-bar .ip{color:var(--gold);}
+#status-bar .timer{font-weight:bold;}
+#status-bar .timer.expiring{color:var(--red);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+#nav-bar{position:sticky;top:40px;z-index:99;background:var(--bg);padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+#nav-bar .back{color:var(--gold);text-decoration:none;font-size:14px;white-space:nowrap;}
+#nav-bar .title{flex:1;text-align:center;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#nav-bar .contact-btn{background:var(--card2);color:var(--gold);border:1px solid var(--border);padding:6px 12px;border-radius:20px;font-size:12px;white-space:nowrap;min-height:32px;font-weight:400;}
+
+.login-hero{text-align:center;padding:40px 0 24px;}
+.login-hero .logo{font-size:48px;margin-bottom:8px;}
+.login-hero h1{font-size:28px;color:var(--gold);margin-bottom:4px;}
+.login-hero p{font-size:14px;color:var(--text2);}
+
+.card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;border:1px solid var(--border);}
+.card h3{font-size:16px;margin-bottom:8px;color:var(--gold);}
+.card p{font-size:13px;color:var(--text2);line-height:1.5;}
+
+.service-grid{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+.service-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .15s;}
+.service-card:active{background:var(--card2);border-color:var(--gold);}
+.service-card .icon{font-size:28px;margin-bottom:6px;}
+.service-card h4{font-size:16px;margin-bottom:4px;}
+.service-card .out{font-size:12px;color:var(--text2);}
+
+.mode-options{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+.mode-opt{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:14px;}
+.mode-opt.active{border-color:var(--gold);background:var(--card2);}
+.mode-opt input{display:none;}
+
+#result-area{margin-top:16px;}
+.result-block{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
+.result-block .label{font-size:11px;color:var(--text2);text-transform:uppercase;margin-bottom:4px;}
+.result-block .value{font-size:15px;}
+.result-block .gua{font-size:18px;margin-right:4px;}
+
+.ai-block{background:var(--card2);border:1px solid var(--gold);border-radius:var(--radius);padding:16px;margin-bottom:10px;font-size:14px;line-height:1.7;min-height:60px;}
+.ai-block .cursor::after{content:'|';color:var(--gold);animation:blink .8s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.skeleton{background:linear-gradient(90deg,#1a1a28 25%,#222 50%,#1a1a28 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;margin:8px 0;}
+.skeleton.h12{height:12px;}.skeleton.h40{height:40px;}.skeleton.h80{height:80px;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.error-msg{background:rgba(239,68,68,0.1);border:1px solid var(--red);border-radius:var(--radius);padding:12px;margin:8px 0;font-size:13px;color:var(--red);display:none;}
+.success-msg{background:rgba(34,197,94,0.1);border:1px solid var(--green);border-radius:var(--radius);padding:12px;margin:8px 0;font-size:13px;color:var(--green);display:none;}
+
+#backup-bar{display:flex;gap:6px;padding:8px 14px;background:var(--card2);border-bottom:1px solid var(--border);align-items:center;}
+#backup-bar input{flex:1;height:36px;padding:0 10px;margin:0;font-size:13px;}
+#backup-bar button{height:36px;padding:0 12px;background:var(--gold);color:#000;border-radius:8px;font-size:13px;white-space:nowrap;min-height:36px;}
+
+#contact-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+#contact-overlay.active{display:flex;}
+.contact-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;}
+.contact-card h3{font-size:18px;color:var(--gold);margin-bottom:4px;}
+.contact-card .close{float:right;background:none;border:none;color:var(--text2);font-size:20px;min-height:auto;padding:0;}
+
+#confirm-dialog{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;}
+#confirm-dialog.active{display:flex;}
+.confirm-card{background:var(--card);border:1px solid #333;border-radius:var(--radius);padding:24px;max-width:320px;width:100%;text-align:center;}
+.confirm-card h3{font-size:16px;margin-bottom:8px;color:var(--gold);}
+.confirm-card p{font-size:13px;color:var(--text2);margin-bottom:16px;}
+.confirm-btns{display:flex;gap:10px;}
+.confirm-btns button{flex:1;height:42px;border-radius:8px;font-size:14px;}
+
+.calibration-q{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;}
+.calibration-q .q{font-size:14px;font-weight:600;margin-bottom:4px;}
+.calibration-q .pred{font-size:13px;color:var(--text2);margin-bottom:8px;}
+.calibration-q .opts{display:flex;gap:6px;flex-wrap:wrap;}
+.calibration-q .opts button{padding:6px 12px;font-size:12px;border:1px solid var(--border);background:var(--card2);color:var(--text);border-radius:20px;min-height:32px;}
+.calibration-q .opts button.selected{background:var(--gold);color:#000;border-color:var(--gold);}
+
+.ask-section{margin-top:16px;padding:16px;background:var(--card);border:1px solid var(--gold);border-radius:var(--radius);}
+.ask-section .ask-title{font-size:14px;color:var(--gold);margin-bottom:8px;}
+.ask-section textarea{font-size:14px;min-height:60px;resize:vertical;}
+.ask-section .ask-btn{width:100%;padding:12px;background:var(--gold);color:#000;border-radius:var(--radius);font-size:14px;margin-top:8px;}
+.ask-section .ask-btn:disabled{background:#555;color:#888;}
+.ask-history{margin-top:12px;}
+.ask-history .ask-item{margin-bottom:12px;padding:12px;border-radius:8px;}
+.ask-history .ask-q{background:var(--card2);color:var(--text);font-size:13px;padding:8px 12px;border-radius:8px 8px 0 0;border-left:2px solid var(--blue);}
+.ask-history .ask-a{background:var(--card);color:var(--text);font-size:13px;padding:10px 12px;border-radius:0 0 8px 8px;line-height:1.6;border-left:2px solid var(--gold);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="status-bar" style="display:none">
+  <span class="ip" id="sb-ip">IP: ---</span>
+  <span class="timer" id="sb-timer">⏳ --:--</span>
+</div>
+
+<div id="nav-bar" style="display:none">
+  <a class="back" id="nav-back" href="#" onclick="goTo('menu')">← 返回</a>
+  <span class="title" id="nav-title">問道網</span>
+  <button class="contact-btn" onclick="openContact()">📧 聯絡師傅</button>
+</div>
+
+<div id="backup-bar" style="display:none">
+  <input type="email" id="backup-email" placeholder="your@email.com" inputmode="email" autocomplete="email">
+  <button id="backup-btn" onclick="requestBackup()">📥 PDF</button>
+</div>
+
+<!-- ===== LOGIN ===== -->
+<div class="screen active" id="screen-login">
+  <div class="login-hero">
+    <div class="logo">🔮</div>
+    <h1>問道網</h1>
+    <p>苦行積善</p>
+  </div>
+  <div class="card">
+    <label>🔑 請輸入授權 Token</label>
+    <input type="text" id="login-token" placeholder="例如：Kx7mPq2RvN9LdYtA" autocomplete="off" autocorrect="off" autocapitalize="off">
+    <span class="helper">💡 Token 由管理員提供，有效期為首次使用後 30 分鐘</span>
+    <div class="error-msg" id="login-error"></div>
+    <div id="captcha-section" style="display:none;background:rgba(201,162,78,0.08);border:2px dashed var(--gold);border-radius:12px;padding:14px;margin:12px 0;">
+      <p style="color:var(--gold);font-weight:700;margin-bottom:6px;">🤖 請先完成驗證碼</p>
+      <p id="captcha-question" style="font-size:20px;font-weight:bold;margin:4px 0;text-align:center;letter-spacing:2px;"></p>
+      <input type="text" id="captcha-answer" placeholder="請輸入答案" inputmode="numeric" style="text-align:center;font-size:18px;font-weight:bold;" onkeydown="if(event.key==='Enter')doLogin()">
+      <input type="hidden" id="captcha-cid">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">登  入</button>
+  </div>
+  <footer>此服務只開放香港地區使用</footer>
+</div>
+
+<!-- ===== MENU ===== -->
+<div class="screen" id="screen-menu">
+  <h2 style="font-size:18px;margin-bottom:4px;">📋 請選擇服務</h2>
+  <p style="color:var(--text2);font-size:13px;margin-bottom:16px;">以下服務全部一鍵直出，AI 會自動用顯淺廣東話解釋結果。</p>
+  <div class="service-grid">
+    <div class="service-card" onclick="goTo('meihua')">
+      <div class="icon">🎴</div><h4>梅花易數</h4>
+      <div class="out">→ 輸出：卦象·體用·吉凶·AI解讀</div>
+    </div>
+    <div class="service-card" onclick="goTo('liuren')">
+      <div class="icon">🔮</div><h4>大六壬</h4>
+      <div class="out">→ 輸出：天地盤·四課·三傳·AI解讀</div>
+    </div>
+    <div class="service-card" onclick="goTo('bazi')">
+      <div class="icon">📅</div><h4>八字排盤</h4>
+      <div class="out">→ 輸入出生資料·五題驗證·AI解讀</div>
+    </div>
+    <div class="service-card" onclick="goTo('meihua-photo')">
+      <div class="icon">📸</div><h4>相片占卜</h4>
+      <div class="out">→ 拍照起卦·AI解讀</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 梅花易數 ===== -->
+<div class="screen" id="screen-meihua">
+  <h3 style="font-size:16px;color:var(--gold);margin-bottom:12px;">🎴 梅花易數</h3>
+  <div class="mode-options" id="meihua-modes">
+    <label class="mode-opt active"><input type="radio" name="mm" value="datetime" checked>⏰ 即時起卦</label>
+    <label class="mode-opt"><input type="radio" name="mm" value="numbers">🔢 數字起卦</label>
+    <label class="mode-opt"><input type="radio" name="mm" value="chars">📝 文字起卦</label>
+  </div>
+  <div id="meihua-numbers" style="display:none;">
+    <input type="number" id="mn1" placeholder="第一個數字（例如：4）" min="1" max="99999">
+    <span class="helper">💡 1-8 對應八卦：1乾2兌3離4震5巽6坎7艮8坤。大過8會自動取餘數</span>
+    <input type="number" id="mn2" placeholder="第二個數字（例如：19）" min="1" max="99999">
+    <input type="number" id="mn3" placeholder="第三個數字·選填（例如：6）" min="1" max="99999">
+    <span class="helper">💡 第三個數字為動爻，唔填會用當前時間推算</span>
+  </div>
+  <div id="meihua-chars" style="display:none;">
+    <input type="text" id="mc" placeholder="輸入 1-3 個中文字（例如：天）" maxlength="3">
+  </div>
+  <input type="text" id="meihua-question" placeholder="想問咩？選填（例如：呢件事成唔成？）" maxlength="100">
+  <p style="font-size:12px;color:var(--text2);margin:8px 0;">📤 將會輸出：卦象·體用關係·吉凶·變卦·AI 顯淺解讀</p>
+  <button class="btn-primary" onclick="doMeihua()">🔮 起卦</button>
+  <div id="meihua-result"></div>
+</div>
+
+<!-- ===== 大六壬 ===== -->
+<div class="screen" id="screen-liuren">
+  <h3 style="font-size:16px;color:var(--gold);margin-bottom:12px;">🔮 大六壬</h3>
+  <label>日期（可選，預設今日）</label>
+  <input type="date" id="lr-date">
+  <span class="helper">💡 留空會用當前日期</span>
+  <label>時辰 0-23（可選，預設現在）</label>
+  <input type="number" id="lr-hour" placeholder="例如：15" min="0" max="23">
+  <span class="helper">💡 留空會用當前時間</span>
+  <input type="text" id="liuren-question" placeholder="想問咩？選填" maxlength="100">
+  <p style="font-size:12px;color:var(--text2);margin:8px 0;">📤 將會輸出：黃曆·天地盤·四課·三傳·AI 解讀</p>
+  <button class="btn-primary" onclick="doLiuren()">🔮 排盤</button>
+  <div id="liuren-result"></div>
+</div>
+
+<!-- ===== 八字排盤 ===== -->
+<div class="screen" id="screen-bazi">
+  <h3 style="font-size:16px;color:var(--gold);margin-bottom:4px;">📅 八字排盤</h3>
+  <p id="bazi-step-label" style="font-size:12px;color:var(--text2);margin-bottom:12px;">Step 1/3 · 輸入出生資料</p>
+  <div id="bazi-step1">
+    <label>● 陽曆  ○ 農曆（目前只支援陽曆）</label>
+    <input type="number" id="bz-year" placeholder="年份（例如：1990）" min="1900" max="2100">
+    <input type="number" id="bz-month" placeholder="月份（例如：6）" min="1" max="12">
+    <input type="number" id="bz-day" placeholder="日期（例如：15）" min="1" max="31">
+    <input type="number" id="bz-hour" placeholder="時·24小時制（例如：14）" min="0" max="23">
+    <label style="display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px;color:var(--text2);">
+      <input type="checkbox" id="bz-hour-unknown" style="width:auto;margin:0;accent-color:var(--gold);" onchange="toggleHourUnknown()">
+      未能提供出生時辰（系統會用午時推算）
+    </label>
+    <input type="number" id="bz-minute" placeholder="分（選填，預設0）" min="0" max="59" value="0">
+    <select id="bz-gender" style="width:100%;padding:12px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;margin:6px 0;">
+      <option value="male">男</option><option value="female">女</option>
+    </select>
+    <button class="btn-primary" onclick="doBaziStep1()">下一步：驗證命盤</button>
+  </div>
+  <div id="bazi-step2" style="display:none;"></div>
+  <div id="bazi-step3" style="display:none;"></div>
+</div>
+
+<!-- ===== CONTACT OVERLAY ===== -->
+<div id="contact-overlay">
+  <div class="contact-card">
+    <button class="close" onclick="closeContact()">✕</button>
+    <h3>📧 聯絡師傅</h3>
+    <p style="font-size:13px;color:var(--text2);margin:8px 0;">如欲與師傅真人溝通，請填寫以下資料。我們會在 1-2 個工作天內回覆。</p>
+    <div id="contact-success" style="display:none;text-align:center;">
+      <div style="font-size:40px;">✅</div>
+      <h4 style="margin:8px 0;color:var(--green);">查詢已成功發送！</h4>
+      <p style="font-size:13px;color:var(--text2);">師傅會經 WhatsApp 或電郵回覆你。</p>
+      <button class="btn-primary" onclick="closeContact()">關閉</button>
+    </div>
+    <form id="contact-form" onsubmit="submitContact(event)">
+      <label>姓名</label>
+      <input type="text" id="c-name" placeholder="例如：陳大文" required>
+      <span class="helper">💡 請輸入你嘅稱呼</span>
+      <label>WhatsApp</label>
+      <input type="tel" id="c-whatsapp" placeholder="例如：91234567" required>
+      <span class="helper">💡 方便師傅聯絡你</span>
+      <label>電郵</label>
+      <input type="email" id="c-email" placeholder="例如：xxx@email.com" required>
+      <span class="helper">💡 我們會發送確認電郵</span>
+      <label>想問咩事？</label>
+      <textarea id="c-question" placeholder="例如：想問事業發展、家庭運勢..." rows="2" required></textarea>
+      <span class="helper">💡 簡單描述你想查詢嘅內容</span>
+      <button type="submit" class="btn-primary">📨 提交查詢</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===== CONFIRM DIALOG ===== -->
+<div id="confirm-dialog">
+  <div class="confirm-card">
+    <h3 id="confirm-title"></h3><p id="confirm-msg"></p>
+    <div class="confirm-btns">
+      <button class="btn-secondary" id="confirm-no">取消</button>
+      <button class="btn-primary" id="confirm-yes" style="margin-top:0;">確定</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#app -->
+
+<script src="config.js?v=20260803"></script>
+<script>
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+let API_BASE = (typeof window.API_BASE !== 'undefined') ? window.API_BASE : 'http://localhost:9000';
+let sessionId = localStorage.getItem('fs_sid') || '';
+let timerInterval = null;
+
+// Try to restore session on page load — silently go to menu if token exists
+// (if expired, first API call will get 401 and we handle it then)
+(function tryRestore() {
+  if (!sessionId) return;
+  // Use existing /api/session endpoint to validate
+  fetch(API_BASE+'/api/session',{method:'GET',
+    headers:{'Authorization':'Bearer '+sessionId}
+  }).then(r=>r.ok?r.json():null).then(d=>{
+    if(d){
+      remainingSeconds = d.remaining_seconds;
+      document.getElementById('sb-ip').textContent = 'IP: '+d.ip;
+      document.getElementById('status-bar').style.display = 'flex';
+      startTimer();
+      goTo('menu');
+    } else {
+      localStorage.removeItem('fs_sid');
+      sessionId = '';
+    }
+  }).catch(()=>{}); // Server unreachable, stay on login
+})();
+let remainingSeconds = 0;
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const s = document.getElementById('screen-'+screen);
+  if(s) s.classList.add('active');
+  document.getElementById('nav-bar').style.display = (screen==='login'||screen==='menu')?'none':'flex';
+  document.getElementById('backup-bar').style.display = (screen==='login')?'none':'flex';
+  if(screen==='meihua'){initMeihuaModes();document.getElementById('nav-title').textContent='🎴 梅花易數';}
+  else if(screen==='liuren'){document.getElementById('nav-title').textContent='🔮 大六壬';}
+  else if(screen==='bazi'){document.getElementById('nav-title').textContent='📅 八字排盤';}
+  else if(screen==='meihua-photo'){goTo('meihua');selectMeihuaMode('photo');}
+  else document.getElementById('nav-title').textContent='問道網';
+}
+
+// ═══════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════
+let loginFailed = 0;
+
+async function doLogin() {
+  const token = document.getElementById('login-token').value.trim();
+  if(!token) return showLoginError('請輸入 Token。');
+  const body = {token};
+  if(loginFailed > 0){
+    const ans = document.getElementById('captcha-answer').value.trim();
+    if(!ans) return showLoginError('⚠️ 請先填寫上方黃色框內嘅驗證碼答案。');
+    body.challenge_id = document.getElementById('captcha-cid').value;
+    body.captcha_answer = ans;
+  }
+  const r = await fetch(API_BASE+'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d = await r.json();
+  if(r.ok){
+    loginFailed = 0;
+    sessionId = d.session_id;
+    remainingSeconds = d.remaining_seconds;
+    localStorage.setItem('fs_sid', sessionId);
+    document.getElementById('sb-ip').textContent = 'IP: '+d.ip;
+    document.getElementById('status-bar').style.display = 'flex';
+    startTimer();
+    goTo('menu');
+  }else{
+    loginFailed++;
+    showLoginError(d.detail?.error||d.detail||'登入失敗');
+    if(d.detail?.captcha) showCaptcha(d.detail.captcha);
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function showCaptcha(data) {
+  const sec = document.getElementById('captcha-section');
+  sec.style.display = 'block';
+  document.getElementById('captcha-question').textContent = data.question;
+  document.getElementById('captcha-cid').value = data.challenge_id;
+  document.getElementById('captcha-answer').value = '';
+  setTimeout(() => {
+    sec.scrollIntoView({behavior:'smooth',block:'center'});
+    document.getElementById('captcha-answer').focus();
+  }, 100);
+}
+
+// ═══════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════
+function startTimer() {
+  const el = document.getElementById('sb-timer');
+  function tick() {
+    if(remainingSeconds <= 0){el.textContent='🔴 已過期';el.classList.add('expiring');forceLogout();return;}
+    const m = Math.floor(remainingSeconds/60), s = remainingSeconds%60;
+    el.textContent = `⏳ ${m}:${s.toString().padStart(2,'0')}`;
+    if(remainingSeconds <= 300) el.classList.add('expiring');
+    remainingSeconds--;
+    timerInterval = setTimeout(tick, 1000);
+  }
+  tick();
+}
+
+function forceLogout() {
+  clearTimeout(timerInterval);
+  sessionId = '';
+  document.getElementById('status-bar').style.display = 'none';
+  document.getElementById('nav-bar').style.display = 'none';
+  document.getElementById('backup-bar').style.display = 'none';
+  goTo('login');
+}
+
+// ═══════════════════════════════════════════
+// 梅花易數
+// ═══════════════════════════════════════════
+function initMeihuaModes() {
+  document.querySelectorAll('#meihua-modes .mode-opt').forEach(el=>{
+    el.onclick = ()=>selectMeihuaMode(el.querySelector('input').value);
+  });
+}
+
+function selectMeihuaMode(mode) {
+  document.querySelectorAll('#meihua-modes .mode-opt').forEach(el=>{
+    el.classList.toggle('active', el.querySelector('input').value===mode);
+  });
+  document.getElementById('meihua-numbers').style.display = mode==='numbers'?'block':'none';
+  document.getElementById('meihua-chars').style.display = mode==='chars'?'block':'none';
+  if(mode==='photo'){
+    document.getElementById('meihua-numbers').style.display = 'none';
+    document.getElementById('meihua-chars').style.display = 'none';
+    // Add photo upload
+    if(!document.getElementById('photo-upload')){
+      const div = document.getElementById('screen-meihua');
+      const upload = document.createElement('div');
+      upload.id = 'photo-upload';
+      upload.innerHTML = `<label class="btn-secondary" style="display:block;text-align:center;cursor:pointer;">📷 拍照 / 從相簿選擇<input type="file" accept="image/*" style="display:none" onchange="handlePhoto(this)"></label><p id="photo-preview-name" style="font-size:12px;color:var(--text2);margin-top:4px;"></p>`;
+      div.insertBefore(upload, div.querySelector('.btn-primary'));
+    }
+    document.getElementById('photo-upload').style.display = 'block';
+  }else{
+    const el = document.getElementById('photo-upload');
+    if(el) el.style.display = 'none';
+  }
+}
+initMeihuaModes();
+
+let photoFile = null;
+
+function handlePhoto(input) {
+  const f = input.files[0];
+  if(!f) return;
+  photoFile = f;
+  document.getElementById('photo-preview-name').textContent = '📸 '+f.name+' ('+(f.size/1024/1024).toFixed(1)+'MB)';
+}
+
+async function doMeihua() {
+  const mode = document.querySelector('input[name="mm"]:checked').value;
+  const q = document.getElementById('meihua-question').value.trim();
+  const resultDiv = document.getElementById('meihua-result');
+
+  resultDiv.innerHTML = '<div class="skeleton h40"></div><div class="skeleton h12"></div><div class="skeleton h80"></div>';
+
+  let body = {mode, question: q};
+
+  if(mode === 'numbers'){
+    const n1 = parseInt(document.getElementById('mn1').value)||0;
+    const n2 = parseInt(document.getElementById('mn2').value)||0;
+    const n3 = parseInt(document.getElementById('mn3').value)||null;
+    if(!n1||!n2) return resultDiv.innerHTML = '<div class="error-msg" style="display:block">⚠️ 請輸入至少兩個數字</div>';
+    body.numbers = n3 ? [n1,n2,n3] : [n1,n2];
+  }else if(mode === 'chars'){
+    const c = document.getElementById('mc').value.trim();
+    if(!c) return resultDiv.innerHTML = '<div class="error-msg" style="display:block">⚠️ 請輸入 1-3 個中文字</div>';
+    body.chars = c;
+  }else if(mode === 'photo'){
+    if(!photoFile) return resultDiv.innerHTML = '<div class="error-msg" style="display:block">⚠️ 請先選擇或拍攝相片</div>';
+    // First analyze photo
+    const fd = new FormData(); fd.append('image', photoFile);
+    const ar = await fetch(API_BASE+'/api/meihua/analyze-photo',{method:'POST',headers:{'Authorization':'Bearer '+sessionId},body:fd});
+    const ad = await ar.json();
+    if(!ar.ok) return resultDiv.innerHTML = '<div class="error-msg" style="display:block">⚠️ '+ (ad.detail||'分析失敗')+'</div>';
+    body.mode = 'photo'; body.extracted = ad.extracted; body.photo_filename = ad.saved.filename;
+  }
+
+  // Streaming request
+  const r = await fetch(API_BASE+'/api/meihua',{method:'POST',
+    headers:{'Authorization':'Bearer '+sessionId,'Content-Type':'application/json'},
+    body:JSON.stringify(body)});
+
+  const reader = r.body.getReader();
+  const decoder = new TextDecoder();
+  let aiText = '';
+  let html = '';
+  let buf = '';
+
+  while(true){
+    const {done, value} = await reader.read();
+    if(done) break;
+    buf += decoder.decode(value,{stream:true});
+    // Process complete lines only, keep partial line in buffer
+    const lines = buf.split('\n');
+    buf = lines.pop() || ''; // keep incomplete last line
+    for(const line of lines){
+      if(!line.startsWith('data: ')) continue;
+      try {
+        const chunk = JSON.parse(line.slice(6));
+        switch(chunk.type){
+        case 'data':
+          html = `<div class="result-block"><div class="label">📅 黃曆背景</div><div class="value">${chunk.huangli.干支} · ${chunk.huangli.天神}（${chunk.huangli.天神吉凶}）</div><div style="font-size:12px;color:var(--text2);margin-top:4px;">宜：${(chunk.huangli.宜||[]).join('、')||'—'} &nbsp; 忌：${(chunk.huangli.忌||[]).join('、')||'—'}</div></div>
+          <div class="result-block"><div class="label">🎴 ${chunk.divination.本卦}</div>
+          <div style="font-size:13px;margin-top:4px;">用卦 ${chunk.divination.用卦.卦象} ${chunk.divination.用卦.卦名}（${chunk.divination.用卦.五行}）</div>
+          <div style="font-size:13px;">體卦 ${chunk.divination.體卦.卦象} ${chunk.divination.體卦.卦名}（${chunk.divination.體卦.五行}）</div>
+          <div style="margin-top:8px;"><span class="gua">${chunk.divination.吉凶}</span> ${chunk.divination.體用關係}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px;">變卦：${chunk.divination.變卦.上卦}${chunk.divination.變卦.下卦} · ${chunk.divination.動爻}</div></div>
+          <div class="result-block"><div class="label">🎯 綜合判斷</div><div class="value">${chunk.verdict.quadrant} · ${chunk.verdict.verdict}</div></div>
+          <div class="ai-block"><div class="label" style="color:var(--gold);">💬 顯淺解讀</div><span class="cursor"></span></div>`;
+          resultDiv.innerHTML = html;
+          break;
+        case 'ai_chunk':
+          aiText += chunk.text;
+          const aiBlock = resultDiv.querySelector('.ai-block');
+          if(aiBlock) aiBlock.innerHTML = '<div class="label" style="color:var(--gold);">💬 顯淺解讀</div>'+escapeHtml(aiText)+'<span class="cursor"></span>';
+          break;
+        case 'ai_done':
+          const ab = resultDiv.querySelector('.ai-block');
+          if(ab) ab.innerHTML = '<div class="label" style="color:var(--gold);">💬 顯淺解讀</div>'+escapeHtml(aiText);
+          storeMeihuaContext(chunk);
+          showAskInput('meihua-result', 'meihua');
+          break;
+        }
+      } catch(e) {}
+    }
+  }
+  if(!aiText){
+    const fallback = resultDiv.querySelector('.ai-block');
+    if(fallback) fallback.innerHTML = '<div class="label" style="color:var(--gold);">💬 顯淺解讀</div><span style="color:var(--text2);">（AI 分析暫時中斷，請稍後重試）</span>';
+  }
+}
+
+// ═══════════════════════════════════════════
+// 大六壬
+// ═══════════════════════════════════════════
+async function doLiuren() {
+  const q = document.getElementById('liuren-question').value.trim();
+  const date = document.getElementById('lr-date').value;
+  const hour = document.getElementById('lr-hour').value;
+  const resultDiv = document.getElementById('liuren-result');
+  resultDiv.innerHTML = '<div class="skeleton h40"></div><div class="skeleton h80"></div>';
+
+  const body = {question: q};
+  if(date) body.date = date;
+  if(hour) body.hour = parseInt(hour);
+
+  const r = await fetch(API_BASE+'/api/liuren',{method:'POST',
+    headers:{'Authorization':'Bearer '+sessionId,'Content-Type':'application/json'},
+    body:JSON.stringify(body)});
+
+  const reader = r.body.getReader(); const decoder = new TextDecoder(); let aiText = ''; let html = ''; let buf = '';
+  while(true){
+    const {done, value} = await reader.read(); if(done) break;
+    buf += decoder.decode(value,{stream:true});
+    const lines = buf.split('\n'); buf = lines.pop() || '';
+    for(const line of lines){
+      if(!line.startsWith('data: ')) continue;
+      try {
+        const chunk = JSON.parse(line.slice(6));
+        switch(chunk.type){
+        case 'data':
+          html = `<div class="result-block"><div class="label">📅 黃曆背景</div><div class="value">${chunk.huangli.干支} · ${chunk.huangli.天神}（${chunk.huangli.天神吉凶}）</div><div style="font-size:12px;color:var(--text2);margin-top:4px;">星宿：${chunk.huangli.星宿}（${chunk.huangli.星宿吉凶}）</div></div>
+          <div class="result-block"><div class="label">🔮 大六壬課盤</div><div class="value">日干支：${chunk.liuren.日干支} · 月將：${chunk.liuren.月將} · 占時：${chunk.liuren.占時}</div>
+          <div style="font-size:13px;margin-top:8px;">📚 四課：${(chunk.liuren.四課||[]).join('、')}</div>
+          <div style="font-size:13px;margin-top:4px;">🔄 三傳：${(chunk.liuren.三傳||[]).join(' → ')}</div></div>
+          <div class="ai-block"><div class="label" style="color:var(--gold);">💬 顯淺解讀</div><span class="cursor"></span></div>`;
+          resultDiv.innerHTML = html;
+          break;
+        case 'ai_chunk':
+          aiText += chunk.text;
+          const ab = resultDiv.querySelector('.ai-block');
+          if(ab) ab.innerHTML = '<div class="label" style="color:var(--gold);">💬 顯淺解讀</div>'+escapeHtml(aiText)+'<span class="cursor"></span>';
+          break;
+        case 'ai_done':
+          const a = resultDiv.querySelector('.ai-block');
+          if(a) a.innerHTML = '<div class="label" style="color:var(--gold);">💬 顯淺解讀</div>'+escapeHtml(aiText);
+          storeLiurenContext(chunk);
+          showAskInput('liuren-result', 'liuren');
+          break;
+        }
+      } catch(e) {}
+    }
+  }
+  if(!aiText){
+    const ab = resultDiv.querySelector('.ai-block');
+    if(ab) ab.innerHTML = '<div class="label" style="color:var(--gold);">💬 顯淺解讀</div><span style="color:var(--text2);">（AI 分析暫時中斷，請稍後重試）</span>';
+  }
+}
+
+// ═══════════════════════════════════════════
+// 八字
+// ═══════════════════════════════════════════
+let baziCanSwitch = false;
+let baziSwitchesRemaining = 0;
+
+function toggleHourUnknown() {
+  const cb = document.getElementById('bz-hour-unknown');
+  const hi = document.getElementById('bz-hour');
+  if(cb.checked) { hi.value = '12'; hi.disabled = true; hi.style.opacity = '0.5'; }
+  else { hi.value = ''; hi.disabled = false; hi.style.opacity = '1'; }
+}
+
+async function doBaziStep1() {
+  const y = parseInt(document.getElementById('bz-year').value);
+  const m = parseInt(document.getElementById('bz-month').value);
+  const d = parseInt(document.getElementById('bz-day').value);
+  let h = parseInt(document.getElementById('bz-hour').value);
+  const min = parseInt(document.getElementById('bz-minute').value)||0;
+  const g = document.getElementById('bz-gender').value;
+  const unknownHour = document.getElementById('bz-hour-unknown').checked;
+  if(!y||!m||!d||isNaN(h)) return alert('請填寫所有出生資料');
+
+  window._baziOrigHour = h;
+  window._baziUnknownHour = unknownHour;
+
+  const r = await fetch(API_BASE+'/api/bazi',{method:'POST',
+    headers:{'Authorization':'Bearer '+sessionId,'Content-Type':'application/json'},
+    body:JSON.stringify({year:y,month:m,day:d,hour:h,minute:min,gender:g})});
+  const data = await r.json();
+  if(!r.ok) return alert(data.detail||'排盤失敗');
+
+  baziCanSwitch = data.can_switch;
+  baziSwitchesRemaining = data.switches_remaining || 0;
+
+  document.getElementById('bazi-step1').style.display = 'none';
+  document.getElementById('bazi-step-label').textContent = 'Step 2/3 · 五題驗證';
+  
+  let hourNote = unknownHour ? '<div style="font-size:11px;color:var(--blue);margin-bottom:8px;">⏰ 時辰不詳，以午時（12:00）推算，請用驗證題確認</div>' : '';
+  let html = hourNote +
+    `<div class="result-block"><div class="value">🀄 ${data.data.四柱.年柱} ${data.data.四柱.月柱} ${data.data.四柱.日柱} ${data.data.四柱.時柱}</div><div style="font-size:13px;color:var(--text2);">日主：${data.data.日主} · 身${data.data.身強弱} · 五行：${JSON.stringify(data.data.五行)}</div></div>
+    <p style="font-size:13px;color:var(--text2);margin:8px 0;">⚠️ 以下五題幫系統更準確了解你。如不確定可跳過。</p>`;
+  
+  const calib = data.data.calibration;
+  const questions = calib && calib.questions ? calib.questions : [];
+  questions.forEach((q,i)=>{
+    html += `<div class="calibration-q"><div class="q">Q${i+1}：${q.question}</div><div class="pred">💡 系統推測：${q.prediction}</div><div class="opts" id="cq-${q.id}">`;
+    (q.options||['符合','部分符合','不符合','跳過']).forEach(opt=>{
+      html += `<button onclick="selectCalibration('cq-${q.id}', this, '${q.id}', '${opt}')">${opt}</button>`;
+    });
+    html += `</div></div>`;
+  });
+  
+  html += `<button class="btn-primary" onclick="doBaziStep2()">下一步：睇完整分析</button>`;
+  if(baziCanSwitch) {
+    html += `<button class="btn-secondary" onclick="doBaziSwitch()">🔄 修改出生資料（剩${baziSwitchesRemaining}次）</button>`;
+  }
+  document.getElementById('bazi-step2').innerHTML = html;
+  document.getElementById('bazi-step2').style.display = 'block';
+  window._bazi_calibration = data;
+  window._bazi_answers = {};
+}
+
+function doBaziSwitch() {
+  document.getElementById('bazi-step2').style.display = 'none';
+  document.getElementById('bazi-step3').style.display = 'none';
+  document.getElementById('bazi-step1').style.display = 'block';
+  document.getElementById('bazi-step-label').textContent = 'Step 1/3 · 修改出生資料（剩' + baziSwitchesRemaining + '次）';
+  if(window._baziUnknownHour) {
+    document.getElementById('bz-hour-unknown').checked = true;
+    document.getElementById('bz-hour').disabled = true;
+    document.getElementById('bz-hour').style.opacity = '0.5';
+    document.getElementById('bz-hour').value = '12';
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectCalibration(groupId, btn, qid, answer) {
+  document.querySelectorAll('#'+groupId+' button').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  window._bazi_answers[qid] = answer;
+}
+
+async function doBaziStep2() {
+  const data = window._bazi_calibration;
+  const answers = window._bazi_answers || {};
+  document.getElementById('bazi-step2').style.display = 'none';
+  document.getElementById('bazi-step-label').textContent = 'Step 3/3 · 分析結果';
+  const step3 = document.getElementById('bazi-step3');
+  step3.style.display = 'block';
+  step3.innerHTML = '<div class="skeleton h40"></div><div class="skeleton h80"></div>';
+
+  const body = {
+    answers: answers,
+    year: parseInt(document.getElementById('bz-year').value),
+    month: parseInt(document.getElementById('bz-month').value),
+    day: parseInt(document.getElementById('bz-day').value),
+    hour: parseInt(document.getElementById('bz-hour').value),
+    minute: parseInt(document.getElementById('bz-minute').value)||0,
+    gender: document.getElementById('bz-gender').value
+  };
+
+  const r = await fetch(API_BASE+'/api/bazi/analyze',{method:'POST',
+    headers:{'Authorization':'Bearer '+sessionId,'Content-Type':'application/json'},
+    body:JSON.stringify(body)});
+
+  const reader = r.body.getReader(); const decoder = new TextDecoder(); let aiText = ''; let html = ''; let buf = '';
+  while(true){
+    const {done, value} = await reader.read(); if(done) break;
+    buf += decoder.decode(value,{stream:true});
+    const lines = buf.split('\n'); buf = lines.pop() || '';
+    for(const line of lines){
+      if(!line.startsWith('data: ')) continue;
+      try {
+        const chunk = JSON.parse(line.slice(6));
+        switch(chunk.type){
+        case 'data':
+          html = `<div class="result-block"><div class="label">✅ 驗證完成</div><div class="value">命中率：${chunk.calibration.hit_rate} · 信心度：${chunk.calibration.confidence}</div><div style="font-size:13px;color:var(--text2);margin-top:4px;">日主：${chunk['日主']}</div></div>
+          <div class="ai-block"><div class="label" style="color:var(--gold);">💬 顯淺解讀</div><span class="cursor"></span></div>`;
+          step3.innerHTML = html;
+          break;
+        case 'ai_chunk':
+          aiText += chunk.text;
+          const ab = step3.querySelector('.ai-block');
+          if(ab) ab.innerHTML = '<div class="label" style="color:var(--gold);">💬 顯淺解讀</div>'+escapeHtml(aiText)+'<span class="cursor"></span>';
+          break;
+        case 'ai_done':
+          const a = step3.querySelector('.ai-block');
+          if(a) a.innerHTML = '<div class="label" style="color:var(--gold);">💬 顯淺解讀</div>'+escapeHtml(aiText);
+          storeBaziContext(chunk);
+          showAskInput('bazi-step3', 'bazi');
+          break;
+        }
+      } catch(e) {}
+    }
+  }
+  if(!aiText){
+    const ab = step3.querySelector('.ai-block');
+    if(ab) ab.innerHTML = '<div class="label" style="color:var(--gold);">💬 顯淺解讀</div><span style="color:var(--text2);">（AI 分析暫時中斷，請稍後重試）</span>';
+  }
+}
+
+// ═══════════════════════════════════════════
+// 追問功能
+// ═══════════════════════════════════════════
+window._svcCtx = {}; // {meihua:{}, liuren:{}, bazi:{}}
+
+function storeMeihuaContext(chunk) {
+  window._svcCtx.meihua = {
+    type: 'meihua',
+    pillars: chunk.divination?.本卦 || '',
+    tiyong: chunk.divination?.體用關係 || '',
+    hugua: chunk.divination?.互卦 || '',
+    biangua: chunk.divination?.變卦 ? chunk.divination.變卦.上卦+chunk.divination.變卦.下卦 : ''
+  };
+}
+
+function storeLiurenContext(chunk) {
+  window._svcCtx.liuren = {
+    type: 'liuren',
+    day_ganzhi: chunk.liuren?.日干支 || '',
+    yuejiang: chunk.liuren?.月將 || '',
+    zhanshi: chunk.liuren?.占時 || '',
+    sanchuan: (chunk.liuren?.三傳||[]).join(' → ')
+  };
+}
+
+function storeBaziContext(chunk) {
+  window._svcCtx.bazi = {
+    type: 'bazi',
+    rizhu: chunk['日主'] || '',
+    strength: '',
+    wuxing: ''
+  };
+}
+
+function showAskInput(containerId, svcType) {
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  
+  // Remove existing ask section if any
+  const existing = container.querySelector('.ask-section');
+  if(existing) existing.remove();
+
+  const askDiv = document.createElement('div');
+  askDiv.className = 'ask-section';
+  askDiv.innerHTML = '<div class="ask-title">💭 有嘢想追問？</div>'+
+    '<textarea id="ask-input-'+svcType+'" placeholder="例如：可唔可以講多少少？／我呢排適唔適合轉工？" rows="2"></textarea>'+
+    '<button class="ask-btn" id="ask-btn-'+svcType+'" onclick="doAsk(\''+svcType+'\')">📤 發送</button>'+
+    '<div class="ask-history" id="ask-history-'+svcType+'"></div>';
+  container.appendChild(askDiv);
+}
+
+async function doAsk(svcType) {
+  const input = document.getElementById('ask-input-'+svcType);
+  const btn = document.getElementById('ask-btn-'+svcType);
+  const history = document.getElementById('ask-history-'+svcType);
+  const question = input.value.trim();
+  if(!question) return;
+
+  // Show question immediately
+  const qDiv = document.createElement('div');
+  qDiv.className = 'ask-q';
+  qDiv.textContent = '🙋 '+question;
+  history.appendChild(qDiv);
+
+  // Create AI answer placeholder
+  const aDiv = document.createElement('div');
+  aDiv.className = 'ask-a';
+  aDiv.innerHTML = '💬 <span class="cursor"></span>';
+  history.appendChild(aDiv);
+
+  input.value = '';
+  btn.disabled = true;
+  btn.textContent = '⏳ 思考中...';
+
+  try {
+    const ctx = window._svcCtx[svcType] || {};
+    const r = await fetch(API_BASE+'/api/ask', {
+      method: 'POST',
+      headers: {'Authorization': 'Bearer '+sessionId, 'Content-Type': 'application/json'},
+      body: JSON.stringify({question: question, context: ctx})
+    });
+
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let aiText = '';
+    let buf = '';
+
+    while(true) {
+      const {done, value} = await reader.read();
+      if(done) break;
+      buf += decoder.decode(value, {stream: true});
+      const lines = buf.split('\n');
+      buf = lines.pop() || '';
+      for(const line of lines) {
+        if(!line.startsWith('data: ')) continue;
+        try {
+          const chunk = JSON.parse(line.slice(6));
+          if(chunk.type === 'ai_chunk') {
+            aiText += chunk.text;
+            aDiv.innerHTML = '💬 '+escapeHtml(aiText)+'<span class="cursor"></span>';
+          } else if(chunk.type === 'ai_done') {
+            aDiv.innerHTML = '💬 '+escapeHtml(aiText);
+          }
+        } catch(e) {}
+      }
+    }
+    if(!aiText) aDiv.textContent = '（AI 暫時未能回應）';
+    history.scrollTop = history.scrollHeight;
+  } catch(e) {
+    aDiv.textContent = '（網絡錯誤，請重試）';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📤 發送';
+}
+
+// ═══════════════════════════════════════════
+// CONTACT
+// ═══════════════════════════════════════════
+function openContact(){document.getElementById('contact-overlay').classList.add('active');}
+function closeContact(){document.getElementById('contact-overlay').classList.remove('active');}
+
+async function submitContact(e){
+  e.preventDefault();
+  const body = {
+    name: document.getElementById('c-name').value.trim(),
+    whatsapp: document.getElementById('c-whatsapp').value.trim(),
+    email: document.getElementById('c-email').value.trim(),
+    question: document.getElementById('c-question').value.trim()
+  };
+  const r = await fetch(API_BASE+'/api/contact',{method:'POST',
+    headers:{'Authorization':'Bearer '+sessionId,'Content-Type':'application/json'},
+    body:JSON.stringify(body)});
+  const d = await r.json();
+  if(r.ok){
+    document.getElementById('contact-form').style.display = 'none';
+    document.getElementById('contact-success').style.display = 'block';
+  }else{
+    alert(d.detail||'發送失敗');
+  }
+}
+
+// ═══════════════════════════════════════════
+// BACKUP
+// ═══════════════════════════════════════════
+async function requestBackup() {
+  const email = document.getElementById('backup-email').value.trim();
+  if(!email||!email.includes('@')) return alert('請輸入有效電郵地址');
+  
+  // Confirm dialog
+  const confirmed = await showConfirm('索取 PDF 備份後，本次連線將會結束。',`備份將發送至 ${email}`,'確定，結束對話');
+  if(!confirmed) return;
+  
+  const r = await fetch(API_BASE+'/api/backup',{method:'POST',
+    headers:{'Authorization':'Bearer '+sessionId,'Content-Type':'application/json'},
+    body:JSON.stringify({email})});
+  const d = await r.json();
+  if(r.ok){
+    alert('✅ 備份已發送至 '+email+'。對話已結束。');
+    setTimeout(forceLogout, 2000);
+  }else{
+    alert(d.detail||'發送失敗');
+  }
+}
+
+function showConfirm(title, msg, yesText='確定') {
+  return new Promise(resolve=>{
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-msg').textContent = msg;
+    document.getElementById('confirm-yes').textContent = yesText;
+    document.getElementById('confirm-dialog').classList.add('active');
+    document.getElementById('confirm-yes').onclick = ()=>{document.getElementById('confirm-dialog').classList.remove('active');resolve(true);};
+    document.getElementById('confirm-no').onclick = ()=>{document.getElementById('confirm-dialog').classList.remove('active');resolve(false);};
+  });
+}
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function escapeHtml(s) {
+  const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+}
+</script>
+</body>
+</html>
